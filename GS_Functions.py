@@ -146,6 +146,10 @@ def read_standard_routes(data, padding):
     data_clean = data[['Employee', 'Days of the week', 'Depot departure time', 'Depot return time']]
     data_clean.reset_index(inplace=True)
     data_clean.columns = ['RouteID', 'DriverID', 'DOW', 'DepartureTime', 'ReturnTime']
+    initial_rows = len(data_clean)
+    data_clean.dropna(subset=['DriverID'], inplace=True)
+    if len(data_clean) < initial_rows:
+        print(f"Warning: Dropped {initial_rows - len(data_clean)} rows from standard routes due to missing DriverID.")
     for _, row in data_clean.iterrows():
         tmp = gsc.Route(ID=row.RouteID)
         tmp.Standard = True
