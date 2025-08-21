@@ -143,13 +143,26 @@ def read_standard_routes(data, padding):
     """
     standard_routes = []
     standard_routes_to_drivers = dict()
+    
+    # Check if we have valid static routes data
+    if data is None or len(data) == 0:
+        print("No static routes data provided - assuming summer/holiday scenario")
+        return standard_routes, standard_routes_to_drivers
+    
     data_clean = data[['Employee', 'Days of the week', 'Depot departure time', 'Depot return time']]
     data_clean.reset_index(inplace=True)
     data_clean.columns = ['RouteID', 'DriverID', 'DOW', 'DepartureTime', 'ReturnTime']
     initial_rows = len(data_clean)
     data_clean.dropna(subset=['DriverID'], inplace=True)
+    
+    # If no valid routes after cleaning, return empty (summer/holiday scenario)
+    if len(data_clean) == 0:
+        print("No drivers assigned to static routes - assuming summer/holiday scenario")
+        return standard_routes, standard_routes_to_drivers
+    
     if len(data_clean) < initial_rows:
         print(f"Warning: Dropped {initial_rows - len(data_clean)} rows from standard routes due to missing DriverID.")
+    
     for _, row in data_clean.iterrows():
         tmp = gsc.Route(ID=row.RouteID)
         tmp.Standard = True
@@ -379,4 +392,5 @@ def diagnostics_sheet(drivers):
 
     res_df = pd.DataFrame(results, columns=['DriverName','DriverID', 'RouteID', 'TimeStart', 'TimeEnd', 'Status'])
     return res_df
+
 
