@@ -195,14 +195,18 @@ def read_seniority_data(data):
 def assign_standard_routes_to_drivers(routes, id_to_drivers, routes_to_drivers):
     """
     Helper for initialize()
-    Input: List of routes, dictionary mapping driver IDs to Driver objects, dictionary mapping route IDs to driver IDs
-    Output: None but adds routes to corresponding Driver's Routes attribute
     """
+    # If no static routes (summer/holiday), skip assignment
+    if not routes:
+        print("No static routes to assign - all drivers start with 0 hours")
+        return
+        
     for route in routes:
         driver_id = routes_to_drivers[route.ID]
-        driver = id_to_drivers[driver_id]
-        driver.Routes.append(route)
-        driver.Hours += route.Hours
+        if driver_id in id_to_drivers:  # Additional safety check
+            driver = id_to_drivers[driver_id]
+            driver.Routes.append(route)
+            driver.Hours += route.Hours
 
 
 def initialize(standard_routes_data, seniority_data, padding):
@@ -392,5 +396,6 @@ def diagnostics_sheet(drivers):
 
     res_df = pd.DataFrame(results, columns=['DriverName','DriverID', 'RouteID', 'TimeStart', 'TimeEnd', 'Status'])
     return res_df
+
 
 
